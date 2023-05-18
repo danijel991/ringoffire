@@ -10,9 +10,7 @@ export class GameComponent implements OnInit {
   pickCardAnimation = false;
   game: Game;
 
-  constructor() {
-    // TODO: document why this constructor is empty
-  }
+  constructor() {}
 
   ngOnInit(): void {
     this.newGame();
