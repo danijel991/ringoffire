@@ -6,11 +6,11 @@ import { Game } from 'src/models/game';
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.scss']
 })
-export class GameComponent implements OnInit { 
+export class GameComponent implements OnInit {
   pickCardAnimation = false;
   game: Game;
 
-  constructor() {}
+  constructor() { }
 
   ngOnInit(): void {
     this.newGame();
