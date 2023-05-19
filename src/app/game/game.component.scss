@@ -6,6 +6,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    // background-repeat: no-repeat;
 
     .card-stack {
         position: relative;
@@ -58,4 +59,18 @@
 .player-position {
     position: absolute;
     right: 0;
+}
+
+.btn-add {
+    position: absolute;
+    right: 32px;
+    bottom: 32px;
+}
+
+.pin-bottom {
+    padding-top: 16px;
+    position: absolute;
+    bottom: 32px;
+    left: 100px;
+    right: 100px;
 }
