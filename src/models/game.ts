@@ -3,6 +3,9 @@ export class Game {
     public stack: string[] = [];
     public playedCards: string[] = [];
     public currentPlayer: number = 0;
+    public currentCard: string = '';
+    public pickCardAnimation = false;
+    public playerImages: string[] = [];
 
     constructor() {
         for (let i = 1; i < 14; i++) {
@@ -19,7 +22,9 @@ export class Game {
             players: this.players,
             stack: this.stack,
             playedCards: this.playedCards,
-            currentPlayer: this.currentPlayer
+            currentPlayer: this.currentPlayer,
+            playerImages: this.playerImages,
+            currentCard: this.currentCard
         };
     }
 }
@@ -43,5 +48,5 @@ function shuffle(array) {
 }
 
 // Used like so
-var arr = [2, 11, 37, 42];
+let arr = [2, 11, 37, 42];
 shuffle(arr);

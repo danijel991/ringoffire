@@ -3,88 +3,110 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
-import { AngularFirestore, AngularFirestoreDocument, DocumentSnapshot } from '@angular/fire/compat/firestore';
-import { map } from 'rxjs/operators';
-
-interface Game {
-  players: string[];
-  stack: string[];
-  playedCards: string[];
-  currentPlayer: number;
-  toJson(): string;
-}
+import { Game } from 'src/models/game';
+import { collection, CollectionReference, doc, docData, DocumentData, Firestore, updateDoc } from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-game',
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.scss']
 })
+
 export class GameComponent implements OnInit {
-  pickCardAnimation = false;
-  currentCard: string = '';
   game: Game;
-  game$: Observable<Game>;
+  gameId: string;
+  docSnap: any;
+  docRef: any;
+  gameOver = false;
+  game$: Observable<any>;
+  private coll: CollectionReference<DocumentData>;
 
-  constructor(private route: ActivatedRoute, private firestore: AngularFirestore, public dialog: MatDialog) { }
+  constructor(private route: ActivatedRoute, private firestore: Firestore, public dialog: MatDialog) {
+    this.coll = collection(this.firestore, 'games');
+  }
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.newGame();
-    this.route.params.subscribe(async (params) => {
-      console.log('id:', params['id']);  // Access 'id' using bracket notation
-
-      const gameId = params['id'];
-      const docRef: AngularFirestoreDocument<Game> = this.firestore.collection('game').doc<Game>(gameId);
-      
-      this.game$ = docRef.snapshotChanges().pipe(
-        map((action: DocumentSnapshot<Game>) => {
-          const data = action.data();
-          const id = action.id;
-          return { id, ...data };
-        })
-      );
-
-      this.game$.subscribe((game: Game) => {
-        console.log('Game update', game);
-        this.game = game;
-      });
-    });
+    this.setGame();
   }
 
   newGame() {
-    this.game = {
-      players: [],
-      stack: [],
-      playedCards: [],
-      currentPlayer: 0,
-      toJson: function () {
-        return JSON.stringify(this);
-      }
-    };
+    this.game = new Game();
   }
 
-  async updateGame() {
-    // Update the game in Firestore
-    const gameId = this.route.snapshot.params['id'];
-    const gameDocRef: AngularFirestoreDocument<Game> = this.firestore.collection('game').doc<Game>(gameId);
-    await gameDocRef.update(this.game);
+  async setGame() {
+    this.route.params.subscribe(async (params) => {
+      this.gameId = params['id'];
+  
+      this.docRef = doc(this.coll, this.gameId);
+      this.game$ = docData(this.docRef);
+      const game = await this.game$.toPromise();
+      this.setCurrentGame(game);
+    });
+  }
+
+  setCurrentGame(game: any) {
+    if (game) {
+      this.game.playedCards = game.playedCards;
+      this.game.players = game.players;
+      this.game.stack = game.stack;
+      this.game.currentPlayer = game.currentPlayer;
+      this.game.pickCardAnimation = game.pickCardAnimation;
+      this.game.currentCard = game.currentCard;
+      this.game.playerImages = game.playerImages;
+    }
   }
 
   takeCard() {
-    if (!this.pickCardAnimation) {
-      this.currentCard = this.game.stack.pop();
-      this.pickCardAnimation = true;
+    if(this.game.stack.length == 0) {
+      this.gameOver = true;
+    } else if (!this.game.pickCardAnimation) {
+      this.game.currentCard = this.game.stack.pop();
+      this.game.pickCardAnimation = true;
+      console.log('New card: ' + this.game.currentCard);
+      console.log('Game is', this.game);
       this.game.currentPlayer++;
       this.game.currentPlayer = this.game.currentPlayer % this.game.players.length;
-      this.game.playedCards.push(this.currentCard);
-      this.pickCardAnimation = false;
+
+      this.saveGame();
+
+      setTimeout(() => {
+        this.game.playedCards.push(this.game.currentCard);
+        this.game.pickCardAnimation = false;
+        this.saveGame();
+      }, 1000);
     }
+  }
+
+  async saveGame() {
+    await updateDoc(this.docRef, this.game.toJson());
   }
 
   openDialog(): void {
     const dialogRef = this.dialog.open(DialogAddPlayerComponent);
 
     dialogRef.afterClosed().subscribe((name: string) => {
-      this.game.players.push(name);
+      if (name && name.length > 0) {
+        this.game.players.push(name);
+        // this.game.playerImages.push('1.webp')
+        this.saveGame();
+      }
     });
   }
+
+  // editPlayer(playerId: number) {
+  //   const dialogRef = this.dialog.open(EditPlayerComponent);
+  //   dialogRef.afterClosed().subscribe((change: string) => {
+  //     if (change) {
+  //       if (change == "DELETE") {
+  //         this.game.players.splice(playerId, 1);
+  //       } else {
+  //         this.game.playerImages[playerId] = change;
+  //       }
+  //       this.saveGame();
+  //     }
+  //   });
+  // }
+
+
 }
