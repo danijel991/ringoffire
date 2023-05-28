@@ -59,6 +59,7 @@
 .player-position {
     position: absolute;
     right: 0;
+    z-index: 1;
 }
 
 .btn-add {
@@ -73,4 +74,50 @@
     bottom: 32px;
     left: 100px;
     right: 100px;
+
+    @media (max-width: 720px) {
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+}
+
+.scroll-container {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    display: flex;
+    overflow-x: scroll;
+    overflow-y: hidden;
+
+    app-player-mobile {
+        margin-left: 8px;
+    }
+}
+
+app-player,
+app-player-mobile {
+    cursor: pointer;
+
+    &:hover {
+        filter: brightness(1.15);
+    }
+}
+
+.gameOver {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    img {
+        width: 300px;
+    }
+}
+
+.preloadImage {
+    opacity: 0;
+    height: 0px;
+    width: 0px;
+    z-index: -9999999;
 }

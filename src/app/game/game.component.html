@@ -1,29 +1,27 @@
+<app-player (click)="editPlayer(i)" *ngFor="let player of game.players; let i = index;"
+    [ngStyle]="{'top.px': 20 + (i * 70)}" [playerActive]="i ==  game.currentPlayer" [image]="game.player_images[i]"
+    [name]="player" class="player-position hide-mobile"></app-player>
 
+<div class="scroll-container hide-desktop">
+    <app-player-mobile (click)="editPlayer(i)" *ngFor="let player of game.players; let i = index;"
+        [image]="game.player_images[i]" [playerActive]="i == game.currentPlayer" [name]="player"></app-player-mobile>
+</div>
 
+<div *ngIf="gameOver" class="gameOver">
+    <img src="./assets/img/game_over.svg">
+</div>
 
-
-
-
-
-<app-player *ngFor="let player of game.players; let i = index;" [ngStyle]="{'top.px': 100 + (i * 90)}" 
-    [playerActive]="i == game.currentPlayer" [name]="player"
-        class="player-position"></app-player>
-
-<div class="field">
-
+<div *ngIf="!gameOver" class="field" style="background-image: url('./assets/img/board.jpg');">
     <div class="card-stack">
         <!-- New card stack-->
         <img *ngFor="let c of [1 ,2 ,3 ,4 ]; let i = index;" [ngStyle]="{'right.px': i * 5}"
-            src="assets/img/cards/card_cover.png" alt="">
-        <img (click)="takeCard()" class="top-card" style="right: 25px" src="assets/img/cards/card_cover.png" alt="">
-
+            src="assets/img/cards/blue_back.png">
+        <img (click)="takeCard()" class="top-card" style="right: 25px" src="assets/img/cards/blue_back.png" alt="">
         <!-- Stack for played cards-->
         <img *ngFor="let card of game.playedCards" class="played-cards" src="assets/img/cards/{{ card }}.png" alt="">
-
         <!-- Current card (animation)-->
-        <img (click)="takeCard()" *ngIf="game.pickCardAnimation" [class.pick-card]="game.pickCardAnimation" class="pick-card"
-            style="right: 25px" src="assets/img/cards/{{ game.currentCard }}.png" alt="">
-
+        <img (click)="takeCard()" *ngIf="game.pickCardAnimation" [class.pick-card]="game.pickCardAnimation"
+            class="pick-card" style="right: 25px" src="assets/img/cards/{{ game.currentCard }}.png" alt="">
     </div>
 </div>
 
@@ -32,3 +30,5 @@
 <button mat-fab color="primary" class="btn-add" (click)="openDialog()">
     <mat-icon>add</mat-icon>
 </button>
+
+<img class="preloadImage" src="./assets/img/cards/{{ game.stack[game.stack.length -1] }}.png">
